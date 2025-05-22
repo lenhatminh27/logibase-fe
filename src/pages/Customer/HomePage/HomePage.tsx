@@ -1,5 +1,5 @@
 import { FaAddressCard, FaBook, FaCartShopping } from "react-icons/fa6"
-import banner from "../../assets/banner.jpg"
+import banner from "../../../assets/banner.jpg"
 import IntroCard from "./IntroCard"
 import { HiAcademicCap } from "react-icons/hi"
 import { MdDiamond } from "react-icons/md"

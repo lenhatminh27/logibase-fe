@@ -1,22 +1,19 @@
 import axios from "axios"
 import { apiUrl } from "./env"
+import { ACCESS_TOKEN } from "../shared/constants/auth"
 
 export const instance = axios.create({ baseURL: apiUrl, withCredentials: true })
 
-// instance.interceptors.request.use(
-//   (config) => {
-//     const rawToken = localStorage.getItem(ACCESS_TOKEN)
-//     const language = localStorage.getItem(LANGUAGE)
-
-//     if (config.headers) {
-//       if (rawToken) config.headers.Authorization = `Bearer ${rawToken}`
-//       if (language) config.headers["Accept-Language"] = language
-//     }
-
-//     return config
-//   },
-//   (error) => Promise.reject(error)
-// )
+instance.interceptors.request.use(
+  (config) => {
+    const rawToken = localStorage.getItem(ACCESS_TOKEN)
+    if (config.headers) {
+      if (rawToken) config.headers.Authorization = `Bearer ${rawToken}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
 // instance.interceptors.response.use(
 //   function (response) {

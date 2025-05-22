@@ -33,3 +33,8 @@ h6 { font-size: 12px; font-weight: 700; }
 .border-primary {
   border-color: #4640DE;
 }
+
+.ant-menu-item {
+  @apply !h-[60px];
+}
+

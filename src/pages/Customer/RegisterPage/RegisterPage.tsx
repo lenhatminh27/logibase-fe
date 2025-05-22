@@ -1,16 +1,22 @@
-import { Form, Input, Button, Typography, Row, Col } from "antd"
+import { Form, Input, Button, Typography, Row, Col, message } from "antd"
 import {
   MailOutlined,
   LockOutlined,
-  UserOutlined,
   HomeOutlined,
   PhoneOutlined,
 } from "@ant-design/icons"
-import Logo from "../../components/Logo"
-import banner from "../../assets/banner.jpg"
-import { instance } from "../../config/axios"
-import type { RegisterRequest, RegisterResponse } from "../../shared/types/auth"
-import type { Response } from "../../shared/types/response"
+import Logo from "../../../components/Logo"
+import banner from "../../../assets/banner.jpg"
+import { instance } from "../../../config/axios"
+import type {
+  RegisterRequest,
+  RegisterResponse,
+} from "../../../shared/types/auth"
+import type { ErrorResponse, Response } from "../../../shared/types/response"
+import { useState } from "react"
+import Alert from "../../../components/Alert"
+import type { AxiosError } from "axios"
+import { useNavigate } from "react-router-dom"
 
 const { Title, Link } = Typography
 
@@ -20,6 +26,10 @@ interface RegisterForm extends RegisterRequest {
 
 function RegisterPage() {
   const [form] = Form.useForm()
+  const [error, setError] = useState<string>("")
+  const [isSuccess, setIsSuccess] = useState<boolean>(false)
+
+  const navigate = useNavigate()
 
   const onFinish = async (values: RegisterForm) => {
     console.log("Received values of form: ", values)
@@ -27,10 +37,25 @@ function RegisterPage() {
     try {
       const response = await instance.post("/api/auth/register", rest)
       const resData: Response<RegisterResponse> = response.data
+      message.success("Đăng ký thành công!")
+      navigate("/login")
+      form.resetFields()
       console.log(resData)
     } catch (error) {
-      console.log(error)
+      const errorData: ErrorResponse = (error as AxiosError).response
+        ?.data as ErrorResponse
+      setError(errorData.message)
+      setIsSuccess(false)
     }
+  }
+
+  const handleChange = (name: string) => {
+    form.setFields([
+      {
+        name: name,
+        errors: [],
+      },
+    ])
   }
 
   return (
@@ -57,6 +82,22 @@ function RegisterPage() {
               hoặc đăng nhập
             </Link>
           </div>
+          {error && (
+            <Alert
+              message={error}
+              type="error"
+              closable={true}
+              onClose={() => setError("")}
+            />
+          )}
+          {isSuccess && (
+            <Alert
+              message="Đăng ký thành công!"
+              type="success"
+              closable={true}
+              onClose={() => setIsSuccess(false)}
+            />
+          )}
           <Form
             form={form}
             name="register_form"
@@ -64,7 +105,7 @@ function RegisterPage() {
             validateTrigger="onSubmit"
             layout="vertical"
             size="large"
-            className="space-y-1"
+            className="space-y-1 !mt-5"
             requiredMark={false}>
             <Form.Item
               name="email"
@@ -78,6 +119,7 @@ function RegisterPage() {
                   <MailOutlined className="site-form-item-icon text-gray-400" />
                 }
                 placeholder="Email"
+                onChange={(e) => handleChange(e.target.name)}
               />
             </Form.Item>
 
@@ -93,6 +135,7 @@ function RegisterPage() {
                   <LockOutlined className="site-form-item-icon text-gray-400" />
                 }
                 placeholder="Password"
+                onChange={(e) => handleChange(e.target.name)}
               />
             </Form.Item>
             <Form.Item
@@ -121,6 +164,7 @@ function RegisterPage() {
                   <LockOutlined className="site-form-item-icon text-gray-400" />
                 }
                 placeholder="Xác nhận mật khẩu"
+                onChange={(e) => handleChange(e.target.name)}
               />
             </Form.Item>
 
@@ -132,7 +176,10 @@ function RegisterPage() {
                     { required: true, message: "Vui lòng nhập tên của bạn!" },
                   ]}
                   className="!mb-0 sm:!mb-0">
-                  <Input placeholder="Tên" />
+                  <Input
+                    placeholder="Tên"
+                    onChange={(e) => handleChange(e.target.name)}
+                  />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12}>
@@ -142,23 +189,13 @@ function RegisterPage() {
                     { required: true, message: "Vui lòng nhập họ của bạn!" },
                   ]}
                   className="!mb-0 sm:!mb-0">
-                  <Input placeholder="Họ" />
+                  <Input
+                    placeholder="Họ"
+                    onChange={(e) => handleChange(e.target.name)}
+                  />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item
-              name="username"
-              rules={[
-                { required: true, message: "Vui lòng nhập tên người dùng!" },
-              ]}
-              className="!mb-4">
-              <Input
-                prefix={
-                  <UserOutlined className="site-form-item-icon text-gray-400" />
-                }
-                placeholder="Username"
-              />
-            </Form.Item>
             <Form.Item
               name="address"
               rules={[
@@ -170,6 +207,7 @@ function RegisterPage() {
                   <HomeOutlined className="site-form-item-icon text-gray-400" />
                 }
                 placeholder="Địa chỉ"
+                onChange={(e) => handleChange(e.target.name)}
               />
             </Form.Item>
 
@@ -188,10 +226,12 @@ function RegisterPage() {
                   <PhoneOutlined className="site-form-item-icon text-gray-400" />
                 }
                 placeholder="Số điện thoại"
+                onChange={(e) => handleChange(e.target.name)}
               />
             </Form.Item>
             <Form.Item className="!mb-6">
               <Button
+                onClick={() => setError(() => "")}
                 type="primary"
                 htmlType="submit"
                 className="w-full !h-12 !text-base bg-blue-600 hover:bg-blue-700">

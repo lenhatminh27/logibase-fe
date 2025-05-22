@@ -1,45 +1,64 @@
 import { Route, Routes } from "react-router-dom"
-import { authRoutes, privateRoutes, publicRoutes } from "./routes"
+import { adminRoutes, authRoutes, privateRoutes, publicRoutes } from "./routes"
 import AuthRoute from "./AuthRoute"
 import PrivateRoute from "./PrivateRoute"
 import Layout from "../layouts/Customer/Layout"
+import { useSelector } from "react-redux"
+import type { RootState } from "../redux/store"
+import AdminLayout from "../layouts/Admin/AdminLayout"
 
 function AppRouter() {
-  return (
-    <Routes>
-      <Route element={<Layout />}>
-        {publicRoutes.map((route) => (
-          <Route
-            key={route.path}
-            path={route.path}
-            element={<route.component />}
-          />
-        ))}
-        {privateRoutes.map((route) => (
+  const user = useSelector((state: RootState) => state.auth.user)
+  if (user && user?.role === "ADMIN")
+    return (
+      <Routes>
+        <Route element={<AdminLayout />}>
+          {adminRoutes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<route.component />}
+            />
+          ))}
+        </Route>
+      </Routes>
+    )
+  else
+    return (
+      <Routes>
+        <Route element={<Layout />}>
+          {publicRoutes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<route.component />}
+            />
+          ))}
+          {privateRoutes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={
+                <PrivateRoute>
+                  <route.component />
+                </PrivateRoute>
+              }
+            />
+          ))}
+        </Route>
+        {authRoutes.map((route) => (
           <Route
             key={route.path}
             path={route.path}
             element={
-              <PrivateRoute>
+              <AuthRoute>
                 <route.component />
-              </PrivateRoute>
+              </AuthRoute>
             }
           />
         ))}
-      </Route>
-      {authRoutes.map((route) => (
-        <Route
-          key={route.path}
-          path={route.path}
-          element={
-            <AuthRoute>
-              <route.component />
-            </AuthRoute>
-          }
-        />
-      ))}
-    </Routes>
-  )
+      </Routes>
+    )
 }
 
 export default AppRouter

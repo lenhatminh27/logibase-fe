@@ -1,11 +1,58 @@
 import { Form, Input, Button, Checkbox, Typography } from "antd"
 import { UserOutlined, LockOutlined } from "@ant-design/icons"
-import Logo from "../../components/Logo"
-import banner from "../../assets/banner.jpg"
+import Logo from "../../../components/Logo"
+import banner from "../../../assets/banner.jpg"
+import type { LoginRequest, LoginResponse } from "../../../shared/types/auth"
+import { instance } from "../../../config/axios"
+import { useNavigate } from "react-router-dom"
+import { useState } from "react"
+import Alert from "../../../components/Alert"
+import { useDispatch } from "react-redux"
+import { setAuth } from "../../../redux/auth/auth.slice"
+import type { ErrorResponse, Response } from "../../../shared/types/response"
+import type { AxiosError } from "axios"
+import { Link as RouterLink } from "react-router-dom"
 
 const { Title, Text, Link } = Typography
 
+interface LoginForm extends LoginRequest {
+  remember: boolean
+}
+
 function LoginPage() {
+  const [form] = Form.useForm()
+  const [error, setError] = useState<string>("")
+  const navigate = useNavigate()
+
+  const dispatch = useDispatch()
+
+  const onFinish = async (values: LoginForm) => {
+    console.log("Received values of form: ", values)
+    try {
+      const { remember, ...rest } = values
+      console.log(rest)
+      const response = await instance.post("/api/auth/login", rest)
+      const resData: Response<LoginResponse> = response.data
+      if (resData) dispatch(setAuth(resData.data as LoginResponse))
+      if (resData.data?.user.role === "ADMIN") {
+        navigate("/admin", { replace: true })
+      } else navigate("/")
+    } catch (error) {
+      const errorData: ErrorResponse = (error as AxiosError).response
+        ?.data as ErrorResponse
+      setError(errorData.message)
+    }
+  }
+
+  const handleChange = (name: string) => {
+    form.setFields([
+      {
+        name: name,
+        errors: [],
+      },
+    ])
+  }
+
   return (
     <div className="flex h-screen bg-gray-100">
       <div className="hidden lg:block lg:w-1/2 xl:w-3/5">
@@ -30,15 +77,17 @@ function LoginPage() {
               Mở tài khoản
             </Link>
           </div>
+          {error && <Alert message={error} type="error" />}
           <Form
             name="login_form"
+            onFinish={onFinish}
             initialValues={{ remember: true }}
             validateTrigger="onSubmit"
             layout="vertical"
             size="large"
-            className="space-y-1">
+            className="space-y-1 !mt-5">
             <Form.Item
-              name="username"
+              name="email"
               rules={[
                 {
                   required: true,
@@ -69,16 +118,17 @@ function LoginPage() {
                     Tự động đăng nhập
                   </Checkbox>
                 </Form.Item>
-                <Link
-                  href="#"
+                <RouterLink
+                  to="/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-700">
                   Quên mật khẩu?
-                </Link>
+                </RouterLink>
               </div>
             </Form.Item>
 
             <Form.Item className="!mb-6">
               <Button
+                onClick={() => setError(() => "")}
                 type="primary"
                 htmlType="submit"
                 className="w-full !h-12 !text-base">

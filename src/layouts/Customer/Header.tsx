@@ -7,9 +7,13 @@ import {
   FaShoppingCart,
   FaSearch,
 } from "react-icons/fa"
+import { UserOutlined } from "@ant-design/icons"
 import Logo from "../../components/Logo"
-import { Divider } from "antd"
+import { Avatar, Button, Divider } from "antd"
 import { Link } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import type { RootState } from "../../redux/store"
+import { logout } from "../../redux/auth/auth.slice"
 interface SubNavItem {
   href: string
   label: string
@@ -98,10 +102,13 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
 }
 
 const Header: React.FC = () => {
+  const user = useSelector((state: RootState) => state.auth.user)
+  const dispatch = useDispatch()
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navLinks: NavItemProps[] = [
-    { href: "#home", label: "HOME" },
+    { href: "/", label: "HOME" },
     {
       href: "",
       label: "GIỚI THIỆU",
@@ -111,13 +118,8 @@ const Header: React.FC = () => {
       ],
     },
     {
-      href: "",
+      href: "/courses",
       label: "KHÓA HỌC",
-      subItems: [
-        { href: "#khoa-hoc-nhap-mon", label: "KHÓA HỌC NHẬP MÔN" },
-        { href: "#khoa-hoc-nang-cao", label: "KHÓA HỌC NÂNG CAO" },
-        { href: "#khoa-hoc-mien-phi", label: "KHÓA HỌC MIỄN PHÍ" },
-      ],
     },
     {
       href: "",
@@ -148,20 +150,39 @@ const Header: React.FC = () => {
               <span>Thứ 2 - Thứ 6, Chủ Nhật: 9:00 - 21:00</span>
             </div>
           </div>
-          <div className="flex">
-            <Link
-              to="/login"
-              className="hover:text-white flex items-center text-[18px]">
-              <FaUser size={20} className="mr-5" />
-              Login
-            </Link>
-            <Divider type="vertical" className="!text-white !h-8 bg-white" />
-            <Link
-              to="/register"
-              className="hover:text-white flex items-center text-[18px]">
-              Register
-            </Link>
-          </div>
+          {!user ? (
+            <div className="flex">
+              <Link
+                to="/login"
+                className="hover:text-white flex items-center text-[18px]">
+                <FaUser size={20} className="mr-5" />
+                Đăng nhập
+              </Link>
+              <Divider type="vertical" className="!text-white !h-8 bg-white" />
+              <Link
+                to="/register"
+                className="hover:text-white flex items-center text-[18px]">
+                Đăng ký
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center">
+              <Avatar
+                icon={<UserOutlined />}
+                className="bg-gray-200 text-gray-700 transition-all duration-300"
+                size={50}
+              />
+              <p className="!text-[18px] mx-3">{user.fullName}</p>
+              <Divider type="vertical" className="!text-white !h-8 bg-white" />
+              <Button
+                color="primary"
+                variant="link"
+                className="!bg-transparent outline-0 !text-white !text-[18px] hover:!text-gray-500 !mb-0.5"
+                onClick={() => dispatch(logout())}>
+                Đăng xuất
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       <nav className="bg-[#2D333E] text-white">
