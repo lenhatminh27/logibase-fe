@@ -1,7 +1,7 @@
 import { Button, message, Modal, Space, Tag, Typography } from "antd"
 import { LeftOutlined, PlusOutlined } from "@ant-design/icons"
 const { Title, Text } = Typography
-import { type Course } from "./../../../shared/types/course"
+import { type CourseResponse } from "./../../../shared/types/course"
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import type { SectionResponse } from "../../../shared/types/section"
@@ -12,13 +12,13 @@ import type { Response } from "../../../shared/types/response"
 import AddSectionModal from "./AddSectionModal"
 import SectionItem from "./SectionItem"
 
-const initCourse: Course = {
+const initCourse: CourseResponse = {
   id: 0,
   createdAt: new Date(),
   createdBy: "",
   description: "",
   price: 0,
-  status: "",
+  status: "PUBLIC",
   thumbnail: "",
   title: "",
   updatedAt: new Date(),
@@ -32,7 +32,7 @@ function CourseDetailPage() {
 
   const [isAddSectionModalVisible, setIsAddSectionModalVisible] =
     useState<boolean>(false)
-  const [course, setCourse] = useState<Course>(initCourse)
+  const [course, setCourse] = useState<CourseResponse>(initCourse)
   const [sections, setSections] = useState<SectionResponse[]>([])
 
   const countTotalLessons = () => {
@@ -51,8 +51,8 @@ function CourseDetailPage() {
     if (isNaN(courseId) || courseId === 0) return // Không fetch nếu id không hợp lệ
     try {
       const response = await instance.get(`/api/course/${courseId}`)
-      const resData: Response<Course> = response.data
-      setCourse(resData.data as Course)
+      const resData: Response<CourseResponse> = response.data
+      setCourse(resData.data as CourseResponse)
     } catch (error) {
       console.log("Error fetching course detail:", error)
       setCourse(initCourse) // Reset về init nếu lỗi

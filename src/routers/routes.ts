@@ -10,6 +10,18 @@ export const publicRoutes: Route[] = [
     path: "/courses",
     component: lazy(() => import("../pages/Customer/CoursePage/CoursePage")),
   },
+  {
+    path: "/courses/detail/:courseId",
+    component: lazy(
+      () => import("../pages/Customer/CourseDetailPage/CourseDetailPage")
+    ),
+  },
+  {
+    path: "/learn/:courseId",
+    component: lazy(
+      () => import("../pages/Customer/LearningCoursePage/LearningCoursePage")
+    ),
+  },
 ]
 
 export const privateRoutes: Route[] = []

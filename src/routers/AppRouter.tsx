@@ -14,7 +14,7 @@ function AppRouter() {
   if (user && user?.role === "ADMIN")
     return (
       <Routes>
-        <Route path="/" element={<Navigate to={"/admin"} replace />} />
+        <Route path="/" element={<Navigate to={"/admin/courses"} replace />} />
         <Route path="/admin" element={<AdminLayout />}>
           {adminRoutes.map((route) => (
             <Route

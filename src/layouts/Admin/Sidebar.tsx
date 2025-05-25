@@ -10,7 +10,7 @@ import {
   SettingOutlined, // Settings
 } from "@ant-design/icons"
 import type { MenuProps } from "antd"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import clsx from "clsx"
 
 const { Sider } = Layout
@@ -36,37 +36,28 @@ function getItem(
 const iconStyle = "!text-[25px]"
 
 const items: MenuItem[] = [
-  getItem(
-    "Dashboard",
-    "/admin/dashboard",
-    <AppstoreOutlined className={iconStyle} />
-  ),
   getItem("Khoá học", "/admin/courses", <BookOutlined className={iconStyle} />),
-  getItem(
-    "Học viên",
-    "/admin/students",
-    <TeamOutlined className={iconStyle} />
-  ),
-  getItem(
-    "Giảng viên",
-    "/admin/instructors",
-    <UserOutlined className={iconStyle} />
-  ),
-  getItem(
-    "Báo cáo",
-    "/admin/reports",
-    <BarChartOutlined className={iconStyle} />
-  ),
-  getItem(
-    "Content",
-    "/admin/content",
-    <FileTextOutlined className={iconStyle} />
-  ),
-  getItem(
-    "Cài đặt",
-    "/admin/settings",
-    <SettingOutlined className={iconStyle} />
-  ),
+  // getItem(
+  //   "Học viên",
+  //   "/admin/students",
+  //   <TeamOutlined className={iconStyle} />
+  // ),
+  // getItem(
+  //   "Giảng viên",
+  //   "/admin/instructors",
+  //   <UserOutlined className={iconStyle} />
+  // ),
+
+  // getItem(
+  //   "Content",
+  //   "/admin/content",
+  //   <FileTextOutlined className={iconStyle} />
+  // ),
+  // getItem(
+  //   "Cài đặt",
+  //   "/admin/settings",
+  //   <SettingOutlined className={iconStyle} />
+  // ),
 ]
 
 interface SidebarProps {
@@ -74,9 +65,12 @@ interface SidebarProps {
 }
 
 function Sidebar({ collapsed }: SidebarProps) {
-  const [currentSelectedKey, setCurrentSelectedKey] =
-    useState<string>("dashboard")
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const isActive = (path: string) => {
+    return pathname === path
+  }
+
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     navigate(`${e.keyPath}`)
   }
@@ -97,10 +91,10 @@ function Sidebar({ collapsed }: SidebarProps) {
       />
       <Menu
         onClick={handleMenuClick}
-        selectedKeys={[currentSelectedKey]}
+        selectedKeys={[pathname]}
         mode="inline"
         items={items}
-        className="!border-r-0 !bg-slate-50 !text-[18px]"
+        className={clsx("!border-r-0 !bg-slate-50 !text-[18px]")}
         style={{
           overflowY: "auto",
         }}

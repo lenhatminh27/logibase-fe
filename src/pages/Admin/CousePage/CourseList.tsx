@@ -15,7 +15,7 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons"
-import type { Course } from "../../../shared/types/course"
+import type { CourseResponse } from "../../../shared/types/course"
 import { instance } from "../../../config/axios"
 import type { Page } from "../../../shared/types/page"
 import { useNavigate } from "react-router-dom"
@@ -25,7 +25,7 @@ import CourseModal from "./CourseModal"
 const { Title, Text } = Typography
 
 interface CourseListResponse {
-  content: Course[]
+  content: CourseResponse[]
   pageCustom: Page
 }
 
@@ -38,7 +38,7 @@ const initPage: Page = {
 
 function CourseList() {
   const [search, setSearch] = useState("") // Initial search can be empty
-  const [courses, setCourses] = useState<Course[]>([])
+  const [courses, setCourses] = useState<CourseResponse[]>([])
   const [page, setPage] = useState<Page>(initPage)
   const [loading, setLoading] = useState<boolean>(false)
   const [isShowCourseModal, setIsShowCourseModal] = useState<number | null>(
@@ -47,7 +47,7 @@ function CourseList() {
 
   const navigate = useNavigate()
 
-  const columns: ColumnsType<Course> = [
+  const columns: ColumnsType<CourseResponse> = [
     {
       title: "Tiêu đề",
       dataIndex: "title",
@@ -68,7 +68,7 @@ function CourseList() {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (_: any, record: Course) => (
+      render: (_: any, record: CourseResponse) => (
         <Switch
           onChange={() => handleChangeStatus(record.id, record.status)}
           checkedChildren={record.status?.toUpperCase()}
@@ -88,7 +88,7 @@ function CourseList() {
       title: "Hành động",
       key: "action",
       align: "center",
-      render: (_: any, record: Course) => (
+      render: (_: any, record: CourseResponse) => (
         <>
           <Dropdown
             menu={{
@@ -269,7 +269,7 @@ function CourseList() {
           placeholder="Tìm kiếm khóa học..."
           prefix={<SearchOutlined className="text-gray-400" />}
           value={search}
-          onChange={handleSearchChange} // Changed to a new handler for more control
+          onChange={handleSearchChange}
           className="max-w-md"
           allowClear
         />

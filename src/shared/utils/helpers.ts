@@ -1,3 +1,6 @@
+import type { AxiosError } from "axios"
+import type { ErrorResponse } from "../types/response"
+
 export function shorteningContent(content: string, maxLength = 70): string {
   if (!content) return ""
   return content.length > maxLength
@@ -9,4 +12,10 @@ export const convertDurationStringFromSeconds = (seconds: number): string => {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+}
+
+export const getErrorMessage = (error: AxiosError): string => {
+  const errorData: ErrorResponse = (error as AxiosError).response
+    ?.data as ErrorResponse
+  return errorData.message
 }

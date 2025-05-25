@@ -15,7 +15,7 @@ import {
   SearchOutlined,
   UserAddOutlined,
 } from "@ant-design/icons"
-import type { Course } from "../../../shared/types/course" // Your existing Course type
+import type { CourseResponse } from "../../../shared/types/course" // Your existing Course type
 import type { Page } from "../../../shared/types/page"
 import { type EnrollmentResponse } from "../../../shared/types/enrollment"
 import { instance } from "../../../config/axios"
@@ -32,7 +32,7 @@ const initPage: Page = {
   totalPages: 1,
 }
 
-const initCourseInfo: Partial<Course> = {
+const initCourseInfo: Partial<CourseResponse> = {
   id: undefined,
   title: "Khóa học",
 }
@@ -44,7 +44,8 @@ function CourseStudentPage() {
 
   const [search, setSearch] = useState("")
   const [students, setStudents] = useState([])
-  const [courseInfo, setCourseInfo] = useState<Partial<Course>>(initCourseInfo)
+  const [courseInfo, setCourseInfo] =
+    useState<Partial<CourseResponse>>(initCourseInfo)
   const [page, setPage] = useState<Page>(initPage)
   const [loading, setLoading] = useState<boolean>(false)
   const [loadingCourse, setLoadingCourse] = useState<boolean>(false)
@@ -56,7 +57,7 @@ function CourseStudentPage() {
     setLoadingCourse(true)
     try {
       const response = await instance.get(`/api/course/${courseId}`)
-      setCourseInfo(response.data.data as Course)
+      setCourseInfo(response.data.data as CourseResponse)
     } catch (error) {
       console.error("Failed to fetch course details:", error)
       message.error("Không thể tải thông tin khóa học.")

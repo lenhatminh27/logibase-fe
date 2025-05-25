@@ -10,7 +10,7 @@ import {
 import { UserOutlined } from "@ant-design/icons"
 import Logo from "../../components/Logo"
 import { Avatar, Button, Divider } from "antd"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import type { RootState } from "../../redux/store"
 import { logout } from "../../redux/auth/auth.slice"
@@ -36,6 +36,7 @@ const NavItem: React.FC<NavItemProps> = ({
   subItems,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
   const hasSubItems = subItems && subItems.length > 0
 
   return (
@@ -106,6 +107,12 @@ const Header: React.FC = () => {
   const dispatch = useDispatch()
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const { pathname } = useLocation()
+  const isActiveHeaderItem = (path: string): boolean => {
+    console.log("/" + pathname.split("/")[1] === path, path)
+    return "/" + pathname.split("/")[1] === path
+  }
 
   const navLinks: NavItemProps[] = [
     { href: "/", label: "HOME" },
@@ -194,7 +201,7 @@ const Header: React.FC = () => {
                 key={link.label}
                 href={link.href}
                 label={link.label}
-                isActive={link.isActive}
+                isActive={isActiveHeaderItem(link.href)}
                 subItems={link.subItems}
               />
             ))}
