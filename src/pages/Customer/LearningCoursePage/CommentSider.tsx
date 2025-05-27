@@ -1,28 +1,13 @@
-import {
-  Avatar,
-  Button,
-  Drawer,
-  Dropdown,
-  Form,
-  Input,
-  List,
-  message,
-  Modal,
-  Spin,
-  Tooltip,
-  type MenuProps,
-} from "antd"
-import React, { useEffect, useState } from "react"
-import { BiComment, BiEdit, BiSend, BiTrash } from "react-icons/bi"
-import { type CommentResponse } from "../../../shared/types/comment"
-import { getErrorMessage } from "../../../shared/utils/helpers"
-import type { AxiosError } from "axios"
-import { instance } from "../../../config/axios"
-import { EllipsisOutlined, UserOutlined } from "@ant-design/icons"
-import { FaEllipsisVertical } from "react-icons/fa6"
-import { useSelector } from "react-redux"
-import type { RootState } from "../../../redux/store"
-import { TbTrash } from "react-icons/tb"
+import {Avatar, Button, Drawer, Dropdown, Form, Input, List, type MenuProps, message, Modal, Spin, Tooltip,} from "antd"
+import React, {useEffect, useState} from "react"
+import {BiEdit, BiSend, BiTrash} from "react-icons/bi"
+import {type CommentResponse} from "../../../shared/types/comment"
+import {getErrorMessage} from "../../../shared/utils/helpers"
+import type {AxiosError} from "axios"
+import {instance} from "../../../config/axios"
+import {EllipsisOutlined, UserOutlined} from "@ant-design/icons"
+import {useSelector} from "react-redux"
+import type {RootState} from "../../../redux/store"
 
 interface CommentSiderProps {
   showDrawer: () => void
@@ -32,9 +17,14 @@ interface CommentSiderProps {
   className?: string
 }
 
+
 function CommentSider({
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
   className,
   open,
+ // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
   showDrawer,
   lessonId,
   onClose,

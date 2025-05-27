@@ -299,7 +299,7 @@ function CourseDetailPage() {
                   : []
               }
               className="bg-white">
-              {sortedSections.map((section, sectionIndex) => {
+              {sortedSections.map((section) => {
                 const sortedLessons = section.courseLessons
                   ? [...section.courseLessons].sort(
                       (a, b) => a.orderIndex - b.orderIndex

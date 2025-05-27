@@ -6,12 +6,12 @@ import {
   EllipsisOutlined,
   PictureOutlined,
 } from "@ant-design/icons"
-import type { Course } from "../shared/types/course"
+import type { CourseResponse } from "../shared/types/course"
 
 const { Title, Text } = Typography
 
 interface CourseCardProps {
-  course: Course
+  course: CourseResponse
   onEdit: (courseId: number) => void
   onDelete: (courseId: number) => void
   onViewLessons: (courseId: number) => void
@@ -37,14 +37,12 @@ const CourseCard: React.FC<CourseCardProps> = ({
     </Menu>
   )
 
-  const getStatusColor = (status: Course["status"]) => {
+  const getStatusColor = (status: CourseResponse["status"]) => {
     switch (status) {
-      case "Published":
+      case "PUBLIC":
         return "blue"
-      case "Draft":
+      case "DRAFT":
         return "gold"
-      case "Archived":
-        return "default"
       default:
         return "default"
     }
