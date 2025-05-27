@@ -29,8 +29,7 @@ services:
       - app-network
 
 networks:
-  default:
-    name: app-network
+  app-network:
 
 
 
