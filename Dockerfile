@@ -10,7 +10,7 @@ RUN npm run build  # tạo thư mục dist/
 FROM nginx:stable-alpine
 
 # Copy custom nginx config
-COPY ~/logibase-be/src/main/docker/nginxnginx.conf /etc/nginx/conf.d/default.conf
+COPY /root/logibase-be/src/main/docker/nginxnginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy build from React
 COPY --from=build /app/dist /usr/share/nginx/html
