@@ -41,6 +41,10 @@ services:
     networks:
       - default
 
+volumes:
+  build-fe:
+    driver: local
+
 networks:
   default:
     name: logibase-net
