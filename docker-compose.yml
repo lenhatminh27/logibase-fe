@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  logibase:
+    image: logibase
+    container_name: logibase
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/management/health" ]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    networks:
+      - default
+
+  webapp:
+    build:
+      context: ~/logibase-fe # folder chứa FE
+      dockerfile: Dockerfile
+      target: /export
+    container_name: webapp
+    volumes:
+      - ./build-fe:/export
+    networks:
+      - default
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    depends_on:
+      - logibase
+      - webapp
+    volumes:
+      - ./build-fe:/usr/share/nginx/html
+      - nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    networks:
+      - default
+
+networks:
+  default:
+    name: logibase-net
+
+
+
