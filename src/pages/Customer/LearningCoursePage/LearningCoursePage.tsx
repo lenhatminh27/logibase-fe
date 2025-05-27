@@ -28,7 +28,7 @@ import type { LessonResponse } from "../../../shared/types/lesson"
 import ReactPlayer from "react-player"
 import type { CourseResponse } from "../../../shared/types/course"
 import CommentSider from "./CommentSider"
-import { BiCheckCircle } from "react-icons/bi"
+import { BiCheckCircle, BiComment } from "react-icons/bi"
 import { convertDurationFromSeconds } from "./../../../shared/utils/helpers"
 
 const { Sider, Content } = Layout
@@ -36,6 +36,7 @@ const { Title, Text } = Typography
 
 function CourseLearningPage() {
   const { courseId } = useParams<{ courseId: string }>()
+
   const navigate = useNavigate()
 
   const [courseContent, setCourseContent] = useState<CourseResponse | null>(
@@ -69,6 +70,22 @@ function CourseLearningPage() {
     }
     setLoading(false)
   }
+
+  // const getCourses = async () => {
+  //     try {
+  //       const response = await instance.get(
+  //         `/api/enrollment/find-by-user?search=${searchTerm}&page=${page.currentPage}&size=${page.pageSize}`
+  //       )
+  //       const resData: Response<{ content: CourseResponse[]; pageCustom: Page }> =
+  //         response.data
+  //       const publicCourses: CourseResponse[] = resData.data?.content || []
+  //       setAllCourses(publicCourses)
+  //       setPage(resData.data?.pageCustom || initPage)
+  //     } catch (error) {
+  //       const errData = getErrorMessage(error as AxiosError)
+  //       message.error(errData)
+  //     }
+  //   }
 
   const getCourseSections = async () => {
     setLoading(true)
@@ -273,8 +290,11 @@ function CourseLearningPage() {
         <Content className="relative p-4 sm:p-6 md:p-8 bg-gray-50 overflow-y-auto h-[calc(100vh-120px)]">
           {currentLesson && (
             <div className="mb-6 pb-4 border-b border-gray-200">
-              <Title level={3} className="!text-2xl !mb-1">
+              <Title level={3} className="!text-2xl !mb-1 flex justify-between">
                 {currentLesson.title}
+                <Button type="primary" className="sticky" onClick={showDrawer}>
+                  <BiComment size={20} /> Bình luận
+                </Button>
               </Title>
               <Text type="secondary" className="flex items-center">
                 {getLessonIcon(currentLesson)}{" "}
@@ -287,7 +307,6 @@ function CourseLearningPage() {
               </Text>
             </div>
           )}
-
           {renderLessonContent()}
         </Content>
       </Layout>

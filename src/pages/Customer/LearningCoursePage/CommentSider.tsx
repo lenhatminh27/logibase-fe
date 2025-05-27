@@ -12,14 +12,17 @@ import {
   Tooltip,
   type MenuProps,
 } from "antd"
-import { useEffect, useState } from "react"
-import { BiComment, BiSend } from "react-icons/bi"
+import React, { useEffect, useState } from "react"
+import { BiComment, BiEdit, BiSend, BiTrash } from "react-icons/bi"
 import { type CommentResponse } from "../../../shared/types/comment"
 import { getErrorMessage } from "../../../shared/utils/helpers"
 import type { AxiosError } from "axios"
 import { instance } from "../../../config/axios"
 import { EllipsisOutlined, UserOutlined } from "@ant-design/icons"
 import { FaEllipsisVertical } from "react-icons/fa6"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../../redux/store"
+import { TbTrash } from "react-icons/tb"
 
 interface CommentSiderProps {
   showDrawer: () => void
@@ -85,10 +88,7 @@ function CommentSider({
   }, [])
 
   return (
-    <>
-      <Button className={className} type="primary" onClick={showDrawer}>
-        <BiComment size={20} /> Bình luận
-      </Button>
+    <div>
       <Drawer
         width={600}
         title="Bình luận"
@@ -122,18 +122,20 @@ function CommentSider({
                 </Button>
               </Form.Item>
             </Form>
-            {comments.map((comment) => (
-              <CommentItem
-                comment={comment}
-                isChild={false}
-                onReplySubmit={onReplySubmit}
-                onMutateSuccess={() => getComments()}
-              />
-            ))}
+            <div className="mr-5">
+              {comments.map((comment) => (
+                <CommentItem
+                  comment={comment}
+                  isChild={false}
+                  onReplySubmit={onReplySubmit}
+                  onMutateSuccess={() => getComments()}
+                />
+              ))}
+            </div>
           </>
         )}
       </Drawer>
-    </>
+    </div>
   )
 }
 
@@ -164,6 +166,8 @@ function CommentItem({
 
   const [isLocallyDeleted, setIsLocallyDeleted] = useState(false)
   const [deleteModalLoading, setDeleteModalLoading] = useState(false)
+
+  const user = useSelector((state: RootState) => state.auth.user)
 
   const handleEditCommentAPI = async (commentId: number, content: string) => {
     setEditSubmitting(true)
@@ -224,8 +228,24 @@ function CommentItem({
   }
 
   const menuItems: MenuProps["items"] = [
-    { key: "1", label: "Sửa" },
-    { key: "2", label: "Xoá" },
+    {
+      key: "1",
+      label: (
+        <div className="flex">
+          <BiEdit className="mt-1 mr-2" />
+          Sửa
+        </div>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <div className="flex text-red-500">
+          <BiTrash className="mt-1 mr-2" />
+          Xoá
+        </div>
+      ),
+    },
   ]
   const handleReplyFormSubmit = async (values: { replyText: string }) => {
     setReplySubmitting(true)
@@ -341,15 +361,19 @@ function CommentItem({
                   </>
                 )}
               </div>
-              {!isEditing && ( // Hide dropdown when editing
-                <Dropdown menu={{ items: menuItems, onClick: handleMenuClick }}>
-                  <Button
-                    type="text"
-                    shape="circle"
-                    icon={<EllipsisOutlined style={{ fontSize: "20px" }} />}
-                  />
-                </Dropdown>
-              )}
+              {!isEditing &&
+                (user?.email === comment.user.email ||
+                  user?.role === "ADMIN") && ( // Hide dropdown when editing
+                  <Dropdown
+                    placement="topLeft"
+                    menu={{ items: menuItems, onClick: handleMenuClick }}>
+                    <Button
+                      type="text"
+                      shape="circle"
+                      icon={<EllipsisOutlined style={{ fontSize: "20px" }} />}
+                    />
+                  </Dropdown>
+                )}
             </div>
           }
         />

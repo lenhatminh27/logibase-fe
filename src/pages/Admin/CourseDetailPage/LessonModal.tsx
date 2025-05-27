@@ -8,6 +8,7 @@ import type {
 import { instance } from "../../../config/axios"
 import MyEditor from "../../../components/editor/MyEditor"
 import { convertDurationStringFromSeconds } from "../../../shared/utils/helpers"
+import CommentSider from "../../Customer/LearningCoursePage/CommentSider"
 
 interface LessonModalProps {
   lesson?: LessonResponse
@@ -323,7 +324,6 @@ const LessonModal: React.FC<LessonModalProps> = ({
             )}
           </Form.Item>
         )}
-
         {selectedLessonTypes.includes("article") && (
           <MyEditor value={article} setValue={(value) => setArticle(value)} />
         )}

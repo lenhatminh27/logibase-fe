@@ -27,7 +27,7 @@ import { type CourseResponse } from "../../../shared/types/course"
 import { instance } from "../../../config/axios"
 import { useNavigate } from "react-router-dom"
 
-const HomePage: React.FC = () => {
+function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [courses, setCourse] = useState<CourseResponse[]>([])

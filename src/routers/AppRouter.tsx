@@ -7,6 +7,7 @@ import { useSelector } from "react-redux"
 import type { RootState } from "../redux/store"
 import AdminLayout from "../layouts/Admin/AdminLayout"
 import type { User } from "../shared/types/auth"
+import NotFoundPage from "../pages/404"
 
 function AppRouter() {
   const user: User | null = useSelector((state: RootState) => state.auth.user)
@@ -61,6 +62,7 @@ function AppRouter() {
             }
           />
         ))}
+        {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
     )
 }

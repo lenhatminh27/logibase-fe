@@ -1,5 +1,8 @@
-import { Modal, Typography, Divider } from "antd"
+import { Modal, Typography, Divider, Button } from "antd"
 import type { LessonResponse } from "../../../shared/types/lesson"
+import CommentSider from "../../Customer/LearningCoursePage/CommentSider"
+import { useState } from "react"
+import { BiComment } from "react-icons/bi"
 
 const { Title, Paragraph, Text } = Typography
 
@@ -12,6 +15,7 @@ function LessonDetailModal({
   onClose?: () => void
   lesson: LessonResponse | null
 }) {
+  const [openComment, setOpenComment] = useState<boolean>(false)
   if (!lesson) return null
 
   return (
@@ -22,7 +26,12 @@ function LessonDetailModal({
       footer={null}
       width={700}>
       <Typography>
-        <Title level={4}>{lesson.title}</Title>
+        <Title level={4} className="flex justify-between">
+          {lesson.title}
+          <Button type="primary" onClick={() => setOpenComment(true)}>
+            <BiComment size={20} /> Bình luận
+          </Button>
+        </Title>
 
         <Text type="secondary">
           Ngày tạo: {new Date(lesson.createdAt).toLocaleString("vi-VN")}
@@ -52,6 +61,13 @@ function LessonDetailModal({
             dangerouslySetInnerHTML={{ __html: lesson.article }}></div>
         )}
       </Typography>
+      <CommentSider
+        open={openComment}
+        showDrawer={() => setOpenComment(true)}
+        onClose={() => setOpenComment(false)}
+        lessonId={lesson.id}
+        className="!fixed !bottom-5 !right-10 !z-10"
+      />
     </Modal>
   )
 }
