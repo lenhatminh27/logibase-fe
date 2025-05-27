@@ -16,7 +16,7 @@ import { Link as RouterLink } from "react-router-dom"
 const { Title, Text, Link } = Typography
 
 interface LoginForm extends LoginRequest {
-  remember: boolean
+  rememberMe: boolean
 }
 
 function LoginPage() {
@@ -31,7 +31,10 @@ function LoginPage() {
     try {
       const { ...rest } = values
       console.log(rest)
-      const response = await instance.post("/api/auth/login", rest)
+      const response = await instance.post("/api/auth/login", {
+        ...rest,
+        rememberMe: !!rest.rememberMe,
+      })
       const resData: Response<LoginResponse> = response.data
       if (resData) dispatch(setAuth(resData.data as LoginResponse))
       if (resData.data?.user.role === "ADMIN") {
@@ -111,9 +114,9 @@ function LoginPage() {
               />
             </Form.Item>
 
-            {/* <Form.Item className="!mb-4">
+            <Form.Item className="!mb-4">
               <div className="flex justify-between items-center">
-                <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Form.Item name="rememberMe" valuePropName="checked" noStyle>
                   <Checkbox className="text-gray-600">
                     Tự động đăng nhập
                   </Checkbox>
@@ -124,7 +127,7 @@ function LoginPage() {
                   Quên mật khẩu?
                 </RouterLink>
               </div>
-            </Form.Item> */}
+            </Form.Item>
 
             <Form.Item className="!mb-6">
               <Button

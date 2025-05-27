@@ -3,7 +3,7 @@ import { apiUrl } from "./env"
 import { ACCESS_TOKEN, USER_CURRENT } from "../shared/constants/auth"
 import { message } from "antd"
 
-export const instance = axios.create({ baseURL: apiUrl, withCredentials: true })
+export const instance = axios.create({ baseURL: apiUrl })
 
 instance.interceptors.request.use(
   (config) => {

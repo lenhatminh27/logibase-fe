@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react" // Added useCallback
 import { useParams, Link, useNavigate } from "react-router-dom"
 import {
   Spin,
@@ -12,6 +12,8 @@ import {
   Typography,
   message,
   Popover,
+  List,
+  Collapse,
 } from "antd"
 import {
   FaArrowLeft,
@@ -19,67 +21,96 @@ import {
   FaChalkboardTeacher,
   FaDollarSign,
   FaInfoCircle,
-  FaTag,
+  FaTag, // Note: FaTag is imported but not used
   FaHome,
   FaHandPointRight,
+  FaBookOpen,
+  FaPlayCircle,
 } from "react-icons/fa"
-import type { CourseResponse } from "../../../shared/types/course"
+import type { CourseResponse } from "../../../shared/types/course" // Assuming CourseResponse does not necessarily include detailed sections
 import { getErrorMessage } from "../../../shared/utils/helpers"
 import type { AxiosError } from "axios"
 import { instance } from "../../../config/axios"
-import type { Response } from "../../../shared/types/response"
+import type { Response } from "../../../shared/types/response" // Standard API response wrapper
 import { useSelector } from "react-redux"
 import type { RootState } from "../../../redux/store"
+import type { SectionResponse } from "../../../shared/types/section"
 
 const { Title, Paragraph, Text } = Typography
+const { Panel } = Collapse
 
 function CourseDetailPage() {
-  const { courseId } = useParams()
-  const user = useSelector((state: RootState) => state.auth.user)
+  const { courseId } = useParams<{ courseId: string }>()
 
   const navigate = useNavigate()
 
   const [course, setCourse] = useState<CourseResponse | null>(null)
-  const [isEnrolled, setIsEnrolled] = useState<boolean>(false)
-  const [loading, setLoading] = useState(true)
+  const [sections, setSections] = useState<SectionResponse[]>([])
+
+  const [loadingCourse, setLoadingCourse] = useState(true)
+  const [loadingSections, setLoadingSections] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchCourseById = async () => {
+  const fetchCourseById = useCallback(async (id: string) => {
     try {
-      setLoading(true)
-      const response = await instance.get(`/api/course/${courseId}`)
+      setLoadingCourse(true)
+      const response = await instance.get(`/api/course/${id}`)
       setCourse((response.data as Response<CourseResponse>).data || null)
-      setLoading(false)
-    } catch (error) {
-      message.error(getErrorMessage(error as AxiosError))
+      setError(null) // Clear previous error on success
+    } catch (err) {
+      const errorMessage = getErrorMessage(err as AxiosError)
+      setError(errorMessage) // Set primary error if course details fail
+      message.error(errorMessage)
+      setCourse(null) // Ensure course is null on error
+    } finally {
+      setLoadingCourse(false)
     }
-  }
+  }, [])
 
-  const getEnrollments = async () => {
+  const getCourseSections = useCallback(async (id: string) => {
+    setLoadingSections(true)
     try {
-      const response = await instance.get(`/api/enrollment/user/${courseId}`)
-      // if (response.data.data.content.email === user?.email) {
-      // }
-    } catch (error) {
-      message.error(getErrorMessage(error as AxiosError))
+      const response = await instance.get(`/api/course-section/${id}`)
+      const apiResponse = response.data as Response<SectionResponse[]>
+      setSections(apiResponse.data || [])
+    } catch (err) {
+      const errorMessage = getErrorMessage(err as AxiosError)
+      message.error(`Lỗi tải nội dung khóa học: ${errorMessage}`)
+      setSections([])
+    } finally {
+      setLoadingSections(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (courseId) {
-      const id = parseInt(courseId, 10)
-      if (isNaN(id)) {
+      const idNum = parseInt(courseId, 10)
+      if (isNaN(idNum)) {
         setError("ID khóa học không hợp lệ.")
-        setLoading(false)
+        setLoadingCourse(false)
+        setLoadingSections(false)
         return
       }
-      setLoading(true)
-      fetchCourseById()
-      getEnrollments()
-    }
-  }, [courseId])
+      // Reset states for potential re-fetches if courseId changes
+      setCourse(null)
+      setSections([])
+      setError(null)
+      setLoadingCourse(true)
+      setLoadingSections(true)
 
-  if (loading) {
+      fetchCourseById(courseId)
+      getCourseSections(courseId)
+    } else {
+      setError("Không có ID khóa học.")
+      setLoadingCourse(false)
+      setLoadingSections(false)
+    }
+  }, [courseId, fetchCourseById, getCourseSections])
+
+  // Combined loading state for the initial page load, primarily for the main spinner
+  const isLoadingPage = loadingCourse && !course // Show main spinner if course details are loading and not yet available
+
+  if (isLoadingPage) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
         <Spin size="large" tip="Đang tải chi tiết khóa học..." />
@@ -87,7 +118,8 @@ function CourseDetailPage() {
     )
   }
 
-  if (error) {
+  if (error && !course) {
+    // Show global error if course fetching failed critically
     return (
       <div className="container mx-auto p-8">
         <Alert message="Lỗi" description={error} type="error" showIcon />
@@ -103,7 +135,7 @@ function CourseDetailPage() {
   }
 
   if (!course) {
-    // Trường hợp này ít khi xảy ra nếu logic error ở trên đã đúng
+    // This handles cases like invalid ID after parsing, or API returning null for course
     return (
       <div className="container mx-auto p-8 text-center">
         <Typography.Title level={3}>
@@ -119,6 +151,11 @@ function CourseDetailPage() {
       </div>
     )
   }
+
+  // Sort sections and lessons once they are available
+  const sortedSections = [...sections].sort(
+    (a, b) => a.orderIndex - b.orderIndex
+  )
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4 md:px-8">
@@ -153,7 +190,9 @@ function CourseDetailPage() {
                     </>
                   }>
                   <Text strong className="text-green-600 text-xl">
-                    {course.price.toLocaleString("vi-VN")} VNĐ
+                    {course.price
+                      ? course.price.toLocaleString("vi-VN") + " VNĐ"
+                      : "Liên hệ"}
                   </Text>
                 </Descriptions.Item>
                 <Descriptions.Item
@@ -163,7 +202,7 @@ function CourseDetailPage() {
                       Người tạo
                     </>
                   }>
-                  {course.createdBy}
+                  {course.createdBy || "N/A"}
                 </Descriptions.Item>
                 <Descriptions.Item
                   label={
@@ -184,31 +223,34 @@ function CourseDetailPage() {
                   {new Date(course.updatedAt).toLocaleDateString("vi-VN")}
                 </Descriptions.Item>
               </Descriptions>
-              {/* <h1 className="mt-6 w-full md:w-auto">Đăng ký khóa học</h1> */}
               <Popover
                 placement="rightTop"
                 className="!mt-10"
                 content={
-                  <p className="flex">
+                  <p className="flex items-center">
                     <span>
                       <FaHandPointRight
                         size={24}
-                        className="!text-blue-500 mr-5"
+                        className="!text-blue-500 mr-3"
                       />
                     </span>
                     Để đăng ký khoá học, vui lòng liên hệ qua Zalo: 0123456789
                   </p>
                 }
                 trigger="click">
-                <Button type="primary">Mua ngay</Button>
+                <Button type="primary" size="large" className="mt-6">
+                  Mua ngay
+                </Button>
               </Popover>
             </div>
-            <div className="md:w-2/5 mt-20">
+            <div className="md:w-2/5 flex items-center justify-center p-4 md:p-0 mt-6 md:mt-0">
               <Image
-                width="100%"
                 alt={course.title}
-                src={course.thumbnail}
-                className="object-cover h-full"
+                src={
+                  course.thumbnail ||
+                  "https://via.placeholder.com/400x300?text=No+Image"
+                }
+                className="object-cover rounded-md shadow-md max-h-[300px] w-auto"
                 preview={{
                   mask: <div className="text-white text-lg">Xem ảnh</div>,
                 }}
@@ -216,20 +258,116 @@ function CourseDetailPage() {
             </div>
           </div>
 
-          <div className="p-6 md:p-8 border-t border-gray-200">
+          <div className="p-6 md:p-8 border-t border-gray-200 mt-6 md:mt-0">
             <Title level={3} className="!mb-4 text-gray-800">
               <FaInfoCircle className="mr-2 inline-block text-blue-500" />
               Mô tả chi tiết
             </Title>
             <Paragraph className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none text-gray-700 leading-relaxed">
-              {course.description.split("\n").map((paragraph, index) => (
-                <React.Fragment key={index}>
-                  {paragraph}
-                  <br />
-                </React.Fragment>
-              ))}
+              {course.description && course.description.length > 0
+                ? course.description.split("\n").map((paragraph, index) => (
+                    <React.Fragment key={index}>
+                      {paragraph}
+                      <br />
+                    </React.Fragment>
+                  ))
+                : "Chưa có mô tả cho khóa học này."}
             </Paragraph>
           </div>
+        </Card>
+
+        <Card
+          title={
+            <Title level={3} className="!mb-0">
+              <FaBookOpen className="mr-2 inline-block text-blue-500" />
+              Nội dung khóa học
+            </Title>
+          }
+          bordered={false}
+          className="mt-8 shadow-xl rounded-lg overflow-hidden">
+          {loadingSections ? (
+            <div className="p-6 text-center">
+              <Spin tip="Đang tải nội dung khóa học..." />
+            </div>
+          ) : sortedSections.length > 0 ? (
+            <Collapse
+              accordion
+              bordered={false}
+              defaultActiveKey={
+                sortedSections.length > 0
+                  ? [sortedSections[0].id.toString()]
+                  : []
+              }
+              className="bg-white">
+              {sortedSections.map((section, sectionIndex) => {
+                const sortedLessons = section.courseLessons
+                  ? [...section.courseLessons].sort(
+                      (a, b) => a.orderIndex - b.orderIndex
+                    )
+                  : []
+                return (
+                  <Panel
+                    header={
+                      <Text strong className="text-base text-gray-700">
+                        {`${section.title}`}
+                      </Text>
+                    }
+                    key={section.id.toString()}
+                    className="bg-gray-50 hover:bg-gray-100 rounded-md mb-2 shadow-sm">
+                    {sortedLessons.length > 0 ? (
+                      <List
+                        size="small"
+                        dataSource={sortedLessons.map(
+                          (lesson, lessonIndex) => ({
+                            ...lesson,
+                            displayLessonNumber: lessonIndex + 1,
+                          })
+                        )}
+                        renderItem={(lesson) => (
+                          <List.Item key={lesson.id} className="!pl-4">
+                            <List.Item.Meta
+                              avatar={
+                                <FaPlayCircle className="mt-1 text-blue-500" />
+                              }
+                              title={
+                                <Text className="text-gray-800">
+                                  {`${lesson.title}`}
+                                </Text>
+                              }
+                            />
+                            {lesson.duration > 0 && (
+                              <Tag color="blue">
+                                {`${Math.floor(lesson.duration / 60)} phút ${
+                                  lesson.duration % 60 > 0
+                                    ? (lesson.duration % 60) + " giây"
+                                    : ""
+                                }`.trim()}
+                              </Tag>
+                            )}
+                            {lesson.trial && <Tag color="green">Học thử</Tag>}
+                          </List.Item>
+                        )}
+                      />
+                    ) : (
+                      <Text type="secondary" italic className="pl-4">
+                        Chưa có bài học nào trong phần này.
+                      </Text>
+                    )}
+                  </Panel>
+                )
+              })}
+            </Collapse>
+          ) : (
+            <div className="p-6 text-center">
+              <FaInfoCircle
+                className="mr-2 inline-block text-gray-400"
+                size={24}
+              />
+              <Text type="secondary" className="italic text-lg">
+                Nội dung khóa học đang được cập nhật hoặc không có.
+              </Text>
+            </div>
+          )}
         </Card>
 
         <div className="mt-8 text-center md:text-left">
