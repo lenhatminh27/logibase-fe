@@ -24,6 +24,8 @@ services:
     container_name: webapp
     volumes:
       - ./build-fe:/export
+    expose:
+      - 80
     networks:
       - default
 
@@ -40,10 +42,6 @@ services:
       - "80:80"
     networks:
       - default
-
-volumes:
-  build-fe:
-    driver: local
 
 networks:
   default:
