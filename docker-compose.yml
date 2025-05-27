@@ -20,7 +20,7 @@ services:
     build:
       context: ./ # folder chứa FE
       dockerfile: Dockerfile
-      target: /export
+      target: export
     container_name: webapp
     volumes:
       - ./build-fe:/export
