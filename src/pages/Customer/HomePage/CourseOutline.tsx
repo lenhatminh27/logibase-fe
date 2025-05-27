@@ -1,4 +1,3 @@
-// src/components/CourseOutline.tsx
 import React from "react"
 import { Typography } from "antd"
 
@@ -12,6 +11,7 @@ interface LessonItem {
 }
 
 const courseData: LessonItem[] = [
+  // ... (courseData remains the same)
   {
     id: "bai1",
     title: "Bài 1: Giới thiệu về Xuất Nhập Khẩu",
@@ -102,37 +102,44 @@ const courseData: LessonItem[] = [
 
 const CourseOutline: React.FC = () => {
   return (
-    <div className="bg-white mx-auto mt-10">
-      {" "}
+    <div className="bg-slate-50 mx-auto p-6 md:p-10 rounded-xl shadow-lg">
       <Title
         level={2}
-        className="!text-2xl md:!text-3xl !font-bold !text-blue-600 text-center mb-2">
-        Nội Dung Khóa Học Xuất Nhập Khẩu & Logistics Tổng hợp
+        className="!text-3xl md:!text-4xl !font-extrabold !text-teal-800 text-center mb-4">
+        NỘI DUNG KHÓA HỌC
       </Title>
-      <div className="flex justify-center mb-6">
-        <div className="h-1 w-24 bg-yellow-400"></div>{" "}
-      </div>
-      <div className="space-y-6">
-        {courseData.map((lesson) => (
-          <div key={lesson.id} className="mb-4">
+      <Paragraph className="text-center text-gray-600 mb-10 md:mb-12 text-lg">
+        Chi tiết chương trình đào tạo Xuất Nhập Khẩu & Logistics Tổng Hợp tại
+        Logibase.
+      </Paragraph>
+      {/* <div className="flex justify-center mb-10 md:mb-12">
+        <div className="h-1.5 w-28 bg-amber-400 rounded-full"></div>
+      </div> */}
+      <div className="space-y-8">
+        {courseData.map((lesson, index) => (
+          <div
+            key={lesson.id}
+            className={`py-6 ${
+              index < courseData.length - 1 ? "border-b border-slate-200" : ""
+            }`}>
             <Title
               level={4}
-              className="!text-red-600 !font-bold !text-base md:!text-lg">
+              className="!text-amber-600 !font-bold !text-xl md:!text-2xl !mb-3">
               {lesson.title}
             </Title>
             {lesson.description && (
-              <Paragraph className="text-gray-700 mt-1 md:text-base">
+              <Paragraph className="text-gray-700 mt-1 text-base md:text-lg leading-relaxed">
                 {lesson.description}
               </Paragraph>
             )}
             {lesson.subItems && lesson.subItems.length > 0 && (
-              <ol className="list-disc list-inside pl-4 mt-2 space-y-1 text-gray-700 md:text-base">
-                {lesson.subItems.map((item, index) => (
-                  <li className="list-decimal" key={index}>
+              <ul className="list-disc list-inside pl-5 mt-4 space-y-2 text-gray-600 text-base leading-relaxed">
+                {lesson.subItems.map((item, idx) => (
+                  <li key={idx} className="text-gray-700">
                     {item}
                   </li>
                 ))}
-              </ol>
+              </ul>
             )}
           </div>
         ))}

@@ -1,18 +1,27 @@
 import { useState, useEffect, useMemo } from "react"
-import { Input, List, Card, Pagination, Empty, Tooltip, message } from "antd"
+import {
+  Input,
+  List,
+  Card,
+  Pagination,
+  Empty,
+  Tooltip,
+  message,
+  Progress,
+} from "antd"
 import {
   FaUserGraduate,
   FaCalendarAlt,
   FaDollarSign,
   FaSearch,
 } from "react-icons/fa"
-import type { CourseResponse } from "../../../shared/types/course"
 import { getErrorMessage } from "../../../shared/utils/helpers"
 import type { AxiosError } from "axios"
 import { instance } from "../../../config/axios"
 import type { Response } from "../../../shared/types/response"
 import type { Page } from "../../../shared/types/page"
 import { useNavigate } from "react-router-dom"
+import { RiProgress1Fill } from "react-icons/ri"
 
 const initPage: Page = {
   currentPage: 1,
@@ -21,8 +30,19 @@ const initPage: Page = {
   totalPages: 0,
 }
 
-function CoursePage() {
-  const [allCourses, setAllCourses] = useState<CourseResponse[]>([])
+interface CourseResponse {
+  id: number
+  title: string
+  description: string
+  thumbnail: string
+  price: number
+  progress: number
+  totalLessons: number
+  completedLessons: number
+}
+
+function MyCourseListPage() {
+  const [allCourses, setAllCourses] = useState<Partial<CourseResponse>[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [page, setPage] = useState<Page>(initPage)
 
@@ -31,13 +51,11 @@ function CoursePage() {
   const getCourses = async () => {
     try {
       const response = await instance.get(
-        `/api/course?search=${searchTerm}&page=${page.currentPage}&size=${page.pageSize}`
+        `/api/enrollment/find-by-user?search=${searchTerm}&page=${page.currentPage}&size=${page.pageSize}`
       )
       const resData: Response<{ content: CourseResponse[]; pageCustom: Page }> =
         response.data
-      const publicCourses: CourseResponse[] =
-        resData.data?.content.filter((course) => course.status === "PUBLIC") ||
-        []
+      const publicCourses: CourseResponse[] = resData.data?.content || []
       setAllCourses(publicCourses)
       setPage(resData.data?.pageCustom || initPage)
     } catch (error) {
@@ -64,7 +82,7 @@ function CoursePage() {
   return (
     <div className="container mx-auto p-4 md:p-8 min-h-screen">
       <h1 className="text-3xl font-bold text-center mb-8 text-blue-600">
-        Danh sách Khóa học
+        Danh sách Khóa học của tôi
       </h1>
 
       <div className="mb-8 max-w-xl mx-auto">
@@ -107,7 +125,7 @@ function CoursePage() {
             renderItem={(course) => (
               <List.Item>
                 <Card
-                  onClick={() => navigate(`/courses/detail/${course.id}`)}
+                  onClick={() => navigate(`/learn/${course.id}`)}
                   hoverable
                   className="shadow-lg rounded-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105"
                   cover={
@@ -127,23 +145,27 @@ function CoursePage() {
                     />
                   </Tooltip>
                   <p className="text-gray-600 my-2 text-sm h-16 overflow-hidden text-ellipsis">
-                    {course.description.length > 100
+                    {course.description && course.description.length > 100
                       ? `${course.description.substring(0, 97)}...`
                       : course.description}
                   </p>
                   <div className="my-3 space-y-1 text-sm">
                     <div className="flex items-center text-green-600 font-medium">
-                      <FaDollarSign className="mr-2" />
-                      Giá: {course.price.toLocaleString("vi-VN")} VNĐ
+                      <RiProgress1Fill className="mr-2" />
+                      Tiến độ:{" "}
+                      <Progress
+                        percent={course.progress}
+                        size="small"
+                        className="!w-[120px] !ml-2"
+                      />
                     </div>
                     <div className="flex items-center text-gray-700">
                       <FaUserGraduate className="mr-2" />
-                      Tạo bởi: {course.createdBy}
+                      Bài học: {course.totalLessons}
                     </div>
                     <div className="flex items-center text-gray-500">
                       <FaCalendarAlt className="mr-2" />
-                      Ngày tạo:{" "}
-                      {new Date(course.createdAt).toLocaleDateString("vi-VN")}
+                      Đã hoàn thành: {course.completedLessons}
                     </div>
                   </div>
                 </Card>
@@ -169,4 +191,4 @@ function CoursePage() {
   )
 }
 
-export default CoursePage
+export default MyCourseListPage

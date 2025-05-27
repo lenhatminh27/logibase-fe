@@ -16,6 +16,15 @@ export const publicRoutes: Route[] = [
       () => import("../pages/Customer/CourseDetailPage/CourseDetailPage")
     ),
   },
+]
+
+export const privateRoutes: Route[] = [
+  {
+    path: "/learn",
+    component: lazy(
+      () => import("../pages/Customer/MyCourseListPage/MyCourseListPage")
+    ),
+  },
   {
     path: "/learn/:courseId",
     component: lazy(
@@ -23,8 +32,6 @@ export const publicRoutes: Route[] = [
     ),
   },
 ]
-
-export const privateRoutes: Route[] = []
 
 export const authRoutes: Route[] = [
   {
@@ -65,5 +72,9 @@ export const adminRoutes: Route[] = [
     component: lazy(
       () => import("../pages/Admin/CourseStudentPage/CourseStudentPage")
     ),
+  },
+  {
+    path: "/admin/users",
+    component: lazy(() => import("../pages/Admin/UserPage/UserPage")),
   },
 ]

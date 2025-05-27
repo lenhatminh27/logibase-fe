@@ -7,7 +7,6 @@ function Layout() {
     <div className="flex flex-col w-full">
       <Header />
       <Outlet />
-      <Footer />
     </div>
   )
 }

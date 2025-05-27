@@ -37,17 +37,18 @@ function AppRouter() {
               element={<route.component />}
             />
           ))}
-          {privateRoutes.map((route) => (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={
-                <PrivateRoute>
-                  <route.component />
-                </PrivateRoute>
-              }
-            />
-          ))}
+          {user &&
+            privateRoutes.map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={
+                  <PrivateRoute>
+                    <route.component />
+                  </PrivateRoute>
+                }
+              />
+            ))}
         </Route>
         {authRoutes.map((route) => (
           <Route

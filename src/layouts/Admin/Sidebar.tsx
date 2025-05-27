@@ -12,6 +12,8 @@ import {
 import type { MenuProps } from "antd"
 import { useLocation, useNavigate } from "react-router-dom"
 import clsx from "clsx"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../redux/store"
 
 const { Sider } = Layout
 
@@ -37,11 +39,7 @@ const iconStyle = "!text-[25px]"
 
 const items: MenuItem[] = [
   getItem("Khoá học", "/admin/courses", <BookOutlined className={iconStyle} />),
-  // getItem(
-  //   "Học viên",
-  //   "/admin/students",
-  //   <TeamOutlined className={iconStyle} />
-  // ),
+  getItem("Người dùng", "/admin/users", <TeamOutlined className={iconStyle} />),
   // getItem(
   //   "Giảng viên",
   //   "/admin/instructors",
@@ -71,6 +69,8 @@ function Sidebar({ collapsed }: SidebarProps) {
     return pathname === path
   }
 
+  const user = useSelector((state: RootState) => state.auth.user)
+
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     navigate(`${e.keyPath}`)
   }
@@ -81,14 +81,17 @@ function Sidebar({ collapsed }: SidebarProps) {
       className="!bg-slate-50 border-r border-gray-200 h-screen fixed left-0 top-0 pt-[20px] z-40 overflow-hidden"
       theme="light"
       collapsed={collapsed}>
-      <Avatar
-        icon={<UserOutlined />}
-        className={clsx(
-          "bg-gray-200 text-gray-700 transition-all duration-300",
-          !collapsed ? "!ml-[30px]" : "!-ml-[350px]"
-        )}
-        size={60}
-      />
+      <div className="flex items-center">
+        <Avatar
+          icon={<>{user?.fullName.split(" ")[1].charAt(0)}</>}
+          className={clsx(
+            "bg-gray-200 text-gray-700 transition-all duration-300",
+            !collapsed ? "!ml-[30px]" : "!-ml-[350px]"
+          )}
+          size={60}
+        />
+        <p className="ml-3 font-semibold text-2xl">{user?.fullName}</p>
+      </div>
       <Menu
         onClick={handleMenuClick}
         selectedKeys={[pathname]}

@@ -3,6 +3,8 @@ import { instance } from "../../../config/axios"
 import { useEffect, useState } from "react"
 import type { UserResponse } from "../../../shared/types/user"
 import type { Page } from "../../../shared/types/page"
+import { getErrorMessage } from "../../../shared/utils/helpers"
+import type { AxiosError } from "axios"
 
 interface AddStudentModalProps {
   courseId: number
@@ -33,7 +35,9 @@ function AddStudentModal({ courseId, isOpen, onClose }: AddStudentModalProps) {
       })
       message.success("Thêm học viên thành công!")
       onClose()
-    } catch (error) {}
+    } catch (error) {
+      message.error(getErrorMessage(error as AxiosError))
+    }
   }
   const getUsers = async () => {
     const response = await instance.get(
@@ -83,7 +87,7 @@ function AddStudentModal({ courseId, isOpen, onClose }: AddStudentModalProps) {
       open={isOpen}
       onOk={handleSubmit}
       onCancel={onClose}
-      okText="Lưu bài học"
+      okText="Thêm"
       cancelText="Hủy">
       <p className="mt-5">Nhập email người dùng</p>
       <Select

@@ -84,7 +84,7 @@ function CourseStudentPage() {
         }))
       } else {
         setStudents([])
-        setPage(initPage) // Reset page if data is malformed
+        setPage(initPage)
         console.error("Malformed student enrollment data:", response.data.data)
       }
     } catch (error) {

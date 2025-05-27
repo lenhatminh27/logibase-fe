@@ -232,6 +232,19 @@ const LessonModal: React.FC<LessonModalProps> = ({
           <Form.Item name="videoFile" label="Chọn video từ máy">
             <Upload
               customRequest={async ({ file, onSuccess, onError }) => {
+                const maxSizeMB = 500
+                const fileSizeMB = (file as File).size / (1024 * 1024)
+
+                if (fileSizeMB > maxSizeMB) {
+                  message.error(
+                    `Video vượt quá ${maxSizeMB}MB. Đang là ${fileSizeMB.toFixed(
+                      2
+                    )}MB.`
+                  )
+                  onError?.(new Error("File quá lớn"))
+                  return
+                }
+
                 const formData = new FormData()
                 formData.append("file", file as File)
 
@@ -245,7 +258,7 @@ const LessonModal: React.FC<LessonModalProps> = ({
                       },
                       onUploadProgress: (progressEvent) => {
                         const percent = Math.round(
-                          (progressEvent.loaded * 100) /
+                          (progressEvent.loaded * 500) /
                             (progressEvent.total || 1)
                         )
                         setUploadProgress(percent)

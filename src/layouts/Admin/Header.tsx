@@ -8,8 +8,9 @@ import {
   MenuFoldOutlined,
 } from "@ant-design/icons"
 import Logo from "../../components/Logo"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { logout } from "../../redux/auth/auth.slice"
+import type { RootState } from "../../redux/store"
 
 interface HeaderProps {
   collapsed: boolean
@@ -20,6 +21,7 @@ function Header({ collapsed, handleCollapsed }: HeaderProps) {
   const onLogout = () => {
     dispatch(logout())
   }
+  const user = useSelector((state: RootState) => state.auth.user)
   const menu = (
     <Menu
       items={[
@@ -76,10 +78,11 @@ function Header({ collapsed, handleCollapsed }: HeaderProps) {
             onClick={(e) => e.preventDefault()}
             className="flex items-center cursor-pointer">
             <Avatar
-              icon={<UserOutlined />}
+              icon={<>{<>{user?.fullName.split(" ")[1].charAt(0)}</>}</>}
               className="bg-gray-200 text-gray-700"
               size={50}
             />
+            <p className="ml-3 font-semibold text-2xl">{user?.fullName}</p>
           </a>
         </Dropdown>
       </div>

@@ -29,13 +29,13 @@ function LoginPage() {
   const onFinish = async (values: LoginForm) => {
     console.log("Received values of form: ", values)
     try {
-      const { remember, ...rest } = values
+      const { ...rest } = values
       console.log(rest)
       const response = await instance.post("/api/auth/login", rest)
       const resData: Response<LoginResponse> = response.data
       if (resData) dispatch(setAuth(resData.data as LoginResponse))
       if (resData.data?.user.role === "ADMIN") {
-        navigate("/admin", { replace: true })
+        navigate("/admin/courses", { replace: true })
       } else navigate("/")
     } catch (error) {
       const errorData: ErrorResponse = (error as AxiosError).response
@@ -111,7 +111,7 @@ function LoginPage() {
               />
             </Form.Item>
 
-            <Form.Item className="!mb-4">
+            {/* <Form.Item className="!mb-4">
               <div className="flex justify-between items-center">
                 <Form.Item name="remember" valuePropName="checked" noStyle>
                   <Checkbox className="text-gray-600">
@@ -124,7 +124,7 @@ function LoginPage() {
                   Quên mật khẩu?
                 </RouterLink>
               </div>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item className="!mb-6">
               <Button
@@ -137,7 +137,7 @@ function LoginPage() {
             </Form.Item>
           </Form>
 
-          <Text
+          {/* <Text
             type="secondary"
             className="block text-center text-xs text-gray-500">
             <Link href="#" className="text-gray-500 hover:text-gray-600">
@@ -147,7 +147,7 @@ function LoginPage() {
             <Link href="#" className="text-gray-500 hover:text-gray-600">
               Chính sách Bảo mật
             </Link>
-          </Text>
+          </Text> */}
         </div>
       </div>
     </div>

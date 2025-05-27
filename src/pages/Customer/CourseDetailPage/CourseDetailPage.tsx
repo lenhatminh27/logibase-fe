@@ -10,6 +10,8 @@ import {
   Breadcrumb,
   Image,
   Typography,
+  message,
+  Popover,
 } from "antd"
 import {
   FaArrowLeft,
@@ -19,44 +21,49 @@ import {
   FaInfoCircle,
   FaTag,
   FaHome,
+  FaHandPointRight,
 } from "react-icons/fa"
 import type { CourseResponse } from "../../../shared/types/course"
+import { getErrorMessage } from "../../../shared/utils/helpers"
+import type { AxiosError } from "axios"
+import { instance } from "../../../config/axios"
+import type { Response } from "../../../shared/types/response"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../../redux/store"
 
 const { Title, Paragraph, Text } = Typography
 
-const MOCK_COURSES: CourseResponse[] = Array.from({ length: 55 }, (_, i) => ({
-  id: i + 1,
-  title: `Khóa học Lập trình React Nâng Cao ${i + 1}`,
-  description: `Đây là mô tả chi tiết và đầy đủ cho khóa học Lập trình React Nâng Cao số ${
-    i + 1
-  }. Trong khóa học này, bạn sẽ được học sâu về các khái niệm cốt lõi và kỹ thuật tiên tiến nhất trong React. Chúng tôi sẽ đi qua các chủ đề như Quản lý trạng thái nâng cao với Redux Toolkit hoặc Zustand, Tối ưu hóa hiệu suất ứng dụng React, Server-Side Rendering (SSR) và Static Site Generation (SSG) với Next.js hoặc Remix, Testing trong React với Jest và React Testing Library. Ngoài ra, khóa học còn bao gồm các bài tập thực hành và dự án cuối khóa để bạn áp dụng kiến thức đã học. Phù hợp cho các bạn đã có kiến thức cơ bản về React và muốn nâng tầm kỹ năng.`,
-  thumbnail: `https://picsum.photos/seed/${i + 1}/800/400`,
-  price: Math.floor(Math.random() * 1000000) + 500000,
-  status: "PUBLIC",
-  createdBy: `Giảng viên ${String.fromCharCode(
-    65 + (i % 26)
-  )} - Chuyên gia React với 10 năm kinh nghiệm`,
-  createdAt: new Date(Date.now() - Math.random() * 10000000000),
-  updatedAt: new Date(Date.now() - Math.random() * 1000000000),
-}))
-
-const fetchCourseById = (id: number): Promise<CourseResponse | undefined> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const course = MOCK_COURSES.find((c) => c.id === id)
-      resolve(course)
-    }, 500)
-  })
-}
-
 function CourseDetailPage() {
   const { courseId } = useParams()
+  const user = useSelector((state: RootState) => state.auth.user)
 
   const navigate = useNavigate()
 
   const [course, setCourse] = useState<CourseResponse | null>(null)
+  const [isEnrolled, setIsEnrolled] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const fetchCourseById = async () => {
+    try {
+      setLoading(true)
+      const response = await instance.get(`/api/course/${courseId}`)
+      setCourse((response.data as Response<CourseResponse>).data || null)
+      setLoading(false)
+    } catch (error) {
+      message.error(getErrorMessage(error as AxiosError))
+    }
+  }
+
+  const getEnrollments = async () => {
+    try {
+      const response = await instance.get(`/api/enrollment/user/${courseId}`)
+      // if (response.data.data.content.email === user?.email) {
+      // }
+    } catch (error) {
+      message.error(getErrorMessage(error as AxiosError))
+    }
+  }
 
   useEffect(() => {
     if (courseId) {
@@ -66,22 +73,9 @@ function CourseDetailPage() {
         setLoading(false)
         return
       }
-
       setLoading(true)
-      fetchCourseById(id)
-        .then((data) => {
-          if (data) {
-            setCourse(data)
-          } else {
-            setError("Không tìm thấy khóa học.")
-          }
-        })
-        .catch(() => {
-          setError("Đã có lỗi xảy ra khi tải dữ liệu khóa học.")
-        })
-        .finally(() => {
-          setLoading(false)
-        })
+      fetchCourseById()
+      getEnrollments()
     }
   }, [courseId])
 
@@ -190,12 +184,24 @@ function CourseDetailPage() {
                   {new Date(course.updatedAt).toLocaleDateString("vi-VN")}
                 </Descriptions.Item>
               </Descriptions>
-              <Button
-                type="primary"
-                size="large"
-                className="mt-6 w-full md:w-auto bg-green-500 hover:bg-green-600">
-                Đăng ký khóa học
-              </Button>
+              {/* <h1 className="mt-6 w-full md:w-auto">Đăng ký khóa học</h1> */}
+              <Popover
+                placement="rightTop"
+                className="!mt-10"
+                content={
+                  <p className="flex">
+                    <span>
+                      <FaHandPointRight
+                        size={24}
+                        className="!text-blue-500 mr-5"
+                      />
+                    </span>
+                    Để đăng ký khoá học, vui lòng liên hệ qua Zalo: 0123456789
+                  </p>
+                }
+                trigger="click">
+                <Button type="primary">Mua ngay</Button>
+              </Popover>
             </div>
             <div className="md:w-2/5 mt-20">
               <Image

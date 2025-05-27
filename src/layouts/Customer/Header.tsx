@@ -110,34 +110,25 @@ const Header: React.FC = () => {
 
   const { pathname } = useLocation()
   const isActiveHeaderItem = (path: string): boolean => {
-    console.log("/" + pathname.split("/")[1] === path, path)
     return "/" + pathname.split("/")[1] === path
   }
 
-  const navLinks: NavItemProps[] = [
+  let navLinks: NavItemProps[] = [
     { href: "/", label: "HOME" },
-    {
-      href: "",
-      label: "GIỚI THIỆU",
-      subItems: [
-        { href: "#ve-logibase", label: "Về Logibase" },
-        { href: "#doi-ngu-giang-vien", label: "Đội ngũ giảng viên" },
-      ],
-    },
+
     {
       href: "/courses",
       label: "KHÓA HỌC",
     },
-    {
-      href: "",
-      label: "KẾT NỐI MENTOR",
-    },
-    {
-      href: "",
-      label: "CHIA SẺ KIẾN THỨC",
-    },
-    { href: "#lien-he", label: "LIÊN HỆ" },
   ]
+  if (user) {
+    navLinks = navLinks.concat([
+      {
+        href: "/learn",
+        label: "Khoá học của tôi",
+      },
+    ])
+  }
 
   return (
     <header className="shadow-lg bg-white">
@@ -207,17 +198,6 @@ const Header: React.FC = () => {
             ))}
           </div>
           <div className="flex items-center space-x-3 md:space-x-4">
-            <a
-              href="#cart"
-              aria-label="Shopping Cart"
-              className="text-white hover:text-yellow-300 transition-colors duration-150">
-              <FaShoppingCart size={20} />
-            </a>
-            <button
-              aria-label="Search"
-              className="text-white p-[7px] border border-gray-500 hover:border-white transition-all duration-150">
-              <FaSearch size={16} />
-            </button>
             <div className="md:hidden">
               <button
                 aria-label="Toggle menu"

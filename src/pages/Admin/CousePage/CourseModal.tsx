@@ -9,11 +9,12 @@ import {
 } from "antd"
 import { useEffect, useState } from "react"
 import { instance } from "../../../config/axios"
-import type { Course } from "../../../shared/types/course"
+import type { CourseResponse } from "../../../shared/types/course"
 import type { ErrorResponse } from "../../../shared/types/response"
 import type { AxiosError } from "axios"
 import { PlusOutlined } from "@ant-design/icons"
 import type { RcFile } from "antd/es/upload"
+import TextArea from "antd/es/input/TextArea"
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -29,7 +30,7 @@ function CourseModal({
   onClose,
   onSuccess,
 }: {
-  course?: Course
+  course?: CourseResponse
   open: boolean
   onClose: () => void
   onSuccess: () => void
@@ -84,7 +85,12 @@ function CourseModal({
         thumbnail: values.thumbnail,
         price: values.price || 0,
       }
-      if (!course) await instance.post("/api/course", payload)
+      if (!course)
+        await instance.post("/api/course", {
+          title: payload.title,
+          thumbnail: payload.thumbnail,
+          price: payload.price,
+        })
       else await instance.put(`/api/course/${course.id}`, payload)
 
       form.resetFields()
@@ -147,9 +153,11 @@ function CourseModal({
           />
         </Form.Item>
 
-        <Form.Item name="description" label="Mô tả">
-          <Input />
-        </Form.Item>
+        {course && (
+          <Form.Item name="description" label="Mô tả">
+            <TextArea className="!min-h-[100px] !max-h-[200px]" />
+          </Form.Item>
+        )}
 
         <Form.Item name="price" label="Giá (VNĐ)">
           <Input type="number" />

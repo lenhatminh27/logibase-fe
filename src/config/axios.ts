@@ -1,6 +1,7 @@
 import axios from "axios"
 import { apiUrl } from "./env"
-import { ACCESS_TOKEN } from "../shared/constants/auth"
+import { ACCESS_TOKEN, USER_CURRENT } from "../shared/constants/auth"
+import { message } from "antd"
 
 export const instance = axios.create({ baseURL: apiUrl, withCredentials: true })
 
@@ -15,15 +16,11 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// instance.interceptors.response.use(
-//   function (response) {
-//     const newToken = response.headers["x-new-access-token"]
-//     if (newToken) {
-//       localStorage.setItem(ACCESS_TOKEN, newToken)
-//     }
-//     return response
-//   },
-//   function (error) {
-//     return Promise.reject(error)
-//   }
-// )
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.log(error)
+
+    return Promise.reject(error)
+  }
+)
