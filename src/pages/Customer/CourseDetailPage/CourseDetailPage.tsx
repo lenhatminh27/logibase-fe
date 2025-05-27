@@ -70,7 +70,7 @@ function CourseDetailPage() {
   const getCourseSections = useCallback(async (id: string) => {
     setLoadingSections(true)
     try {
-      const response = await instance.get(`/api/course-section/${id}`)
+      const response = await instance.get(`/course-section/${id}`)
       const apiResponse = response.data as Response<SectionResponse[]>
       setSections(apiResponse.data || [])
     } catch (err) {
