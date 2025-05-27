@@ -1,16 +1,20 @@
-# Step 1: Build React app với Node
-FROM node:18-alpine AS build
+# Stage 1: Build
+FROM node:18-alpine as builder
 
 WORKDIR /app
-
-# Copy package.json & package-lock.json (hoặc yarn.lock)
-COPY package*.json ./
-
-# Cài dependencies
-RUN npm install
-
-# Copy toàn bộ source code
 COPY . .
 
-# Build app với biến môi trường nếu cần (ví dụ dùng .env.prod)
+RUN npm install
 RUN npm run build
+
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
+
+# Xoá config mặc định
+RUN rm -rf /etc/nginx/conf.d/default.conf
+
+# Copy file build vào nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
