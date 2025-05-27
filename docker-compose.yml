@@ -18,7 +18,7 @@ services:
 
   webapp:
     build:
-      context: ~/logibase-fe # folder chứa FE
+      context: ./ # folder chứa FE
       dockerfile: Dockerfile
       target: /export
     container_name: webapp
